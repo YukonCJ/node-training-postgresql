@@ -23,7 +23,7 @@ const CreditPackage = new EntitySchema({
     price: {
       type: "numeric",
       precision: "10",
-      scale: '2',
+      scale: "2",
       nullable: false,
     },
     create_at: {
@@ -35,29 +35,28 @@ const CreditPackage = new EntitySchema({
 });
 
 const Skill = new EntitySchema({
-  name: 'Skill',
-  tableName: 'SKILL',
+  name: "Skill",
+  tableName: "SKILL",
   columns: {
     id: {
       primary: true,
-      type: 'uuid',
-      generated: 'uuid',
+      type: "uuid",
+      generated: "uuid",
       nullable: false,
     },
     name: {
-      type: 'varchar',
-      length: '50',
+      type: "varchar",
+      length: "50",
       nullable: false,
       unique: true,
     },
     create_at: {
-      type: 'timestamp',
+      type: "timestamp",
       createDate: true,
       nullable: false,
-    }
-  }
-})
-
+    },
+  },
+});
 
 const AppDataSource = new DataSource({
   type: "postgres",

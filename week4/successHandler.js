@@ -1,4 +1,4 @@
-function successHandler(res, data=null) {
+function successHandler(res, data) {
   const headers = {
     "Access-Control-Allow-Headers":
       "Content-Type, Authorization, Content-Length, X-Requested-With",

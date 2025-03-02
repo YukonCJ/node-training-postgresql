@@ -6,6 +6,9 @@ const AppDataSource = require("./db");
 const { v4: uuidv4 } = require("uuid");
 const resHandler = require("./successHandler");
 
+const creditPackageRoute = "/api/credit-package";
+const skillRoute = "/api/coaches/skill";
+
 function isUndefined(value) {
   return value === undefined;
 }
@@ -29,13 +32,13 @@ const requestListener = async (req, res) => {
     body += chunk;
   });
 
-  if (req.url === "/api/credit-package" && req.method === "GET") {
+  if (req.url === creditPackageRoute && req.method === "GET") {
     const repo = AppDataSource.getRepository("CreditPackage");
     const result = await repo.find({
       select: ["id", "name", "credit_amount", "price"],
     });
     successHandler(res, result);
-  } else if (req.url === "/api/credit-package" && req.method === "POST") {
+  } else if (req.url === creditPackageRoute && req.method === "POST") {
     req.on("end", async () => {
       try {
         const body = JSON.parse(body);
@@ -67,11 +70,11 @@ const requestListener = async (req, res) => {
         const result = await Repo.save(newPackage);
         successHandler(res, result);
       } catch (error) {
-        errorHandler(res, 404, "error");
+        errorHandler(res, 500, "error");
       }
     });
   } else if (
-    req.url.startsWith("/api/credit-package/") &&
+    req.url.startsWith(creditPackageRoute) &&
     req.method === "DELETE"
   ) {
     try {
@@ -85,7 +88,54 @@ const requestListener = async (req, res) => {
         errorHandler(res, 400, "ID錯誤");
         return;
       }
-      successHandler(res)
+      successHandler(res);
+    } catch (error) {
+      errorHandler(res, 500, "伺服器錯誤");
+    }
+    const repo = AppDataSource.getRepository("CreditPackage");
+  } else if (req.url === skillRoute && req.method === "GET") {
+    const repo = AppDataSource.getRepository("Skill");
+    const result = await repo.find({
+      select: ["id", "name"],
+    });
+    successHandler(res, result);
+  } else if (req.url === skillRoute && req.method === "POST") {
+    req.on("end", async () => {
+      try {
+        const { name } = JSON.parse(body);
+        // 檢查400
+        if (isNotValidSting(name)) {
+          errorHandler(res, 400, "欄位未填寫正確");
+          return;
+        }
+        // 檢查409
+        const Repo = AppDataSource.getRepository("Skill");
+        const doppelganger = await Repo.find({ where: { name } });
+        if (doppelganger.length > 0) {
+          errorHandler(res, 409, "資料重複");
+          return;
+        }
+        // post成功
+        const newSkill = Repo.create({ name });
+        const result = await Repo.save(newSkill);
+        successHandler(res, result);
+      } catch (error) {
+        errorHandler(res, 500, "error");
+      }
+    });
+  } else if (req.url.startsWith(skillRoute) && req.method === "DELETE") {
+    try {
+      const id = req.url.split("/").pop();
+      if (isUndefined(id) || isNotValidSting(id)) {
+        errorHandler(res, 400, "ID錯誤");
+        return;
+      }
+      const result = AppDataSource.getRepository("Skill").delete(id);
+      if (result.affected === 0) {
+        errorHandler(res, 400, "ID錯誤");
+        return;
+      }
+      successHandler(res);
     } catch (error) {
       errorHandler(res, 500, "伺服器錯誤");
     }
