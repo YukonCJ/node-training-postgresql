@@ -33,11 +33,15 @@ const requestListener = async (req, res) => {
   });
 
   if (req.url === creditPackageRoute && req.method === "GET") {
-    const repo = AppDataSource.getRepository("CreditPackage");
-    const result = await repo.find({
-      select: ["id", "name", "credit_amount", "price"],
-    });
-    successHandler(res, result);
+    try {
+      const repo = AppDataSource.getRepository("CreditPackage");
+      const result = await repo.find({
+        select: ["id", "name", "credit_amount", "price"],
+      });
+      successHandler(res, result);
+    } catch (error) {
+      errorHandler(res, 500, "伺服器錯誤");
+    }
   } else if (req.url === creditPackageRoute && req.method === "POST") {
     req.on("end", async () => {
       try {
@@ -68,7 +72,7 @@ const requestListener = async (req, res) => {
           price: body.price,
         });
         const result = await Repo.save(newPackage);
-        successHandler(res, result);
+        successHandler(res, 201, result);
       } catch (error) {
         errorHandler(res, 500, "error");
       }
@@ -92,7 +96,6 @@ const requestListener = async (req, res) => {
     } catch (error) {
       errorHandler(res, 500, "伺服器錯誤");
     }
-    const repo = AppDataSource.getRepository("CreditPackage");
   } else if (req.url === skillRoute && req.method === "GET") {
     const repo = AppDataSource.getRepository("Skill");
     const result = await repo.find({
@@ -118,7 +121,7 @@ const requestListener = async (req, res) => {
         // post成功
         const newSkill = Repo.create({ name });
         const result = await Repo.save(newSkill);
-        successHandler(res, result);
+        successHandler(res, 201, result);
       } catch (error) {
         errorHandler(res, 500, "error");
       }

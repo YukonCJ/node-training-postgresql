@@ -1,4 +1,4 @@
-function successHandler(res, data) {
+function successHandler(res, status=200, data) {
   const headers = {
     "Access-Control-Allow-Headers":
       "Content-Type, Authorization, Content-Length, X-Requested-With",
@@ -6,7 +6,7 @@ function successHandler(res, data) {
     "Access-Control-Allow-Methods": "PATCH, POST, GET,OPTIONS,DELETE", // 可接受的API方法
     "Content-Type": "application/json", // 回傳json格式
   };
-  res.writeHead(200, headers);
+  res.writeHead(status, headers);
   res.write(
     JSON.stringify({
       status: "success",
